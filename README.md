@@ -10,3 +10,8 @@ Faz parte da organização [Permission-SaaS](https://github.com/Permission-SaaS)
 [`permission_saas`](https://github.com/Permission-SaaS/permission_saas) é o guarda-chuva: reúne todos
 os repositórios como submódulos, sobe o sistema inteiro pelo Docker Compose e guarda a visão de
 arquitetura e o log de ADRs.
+
+## Licença
+
+Todos os direitos reservados a Jairo Williams Guedes Lopes Neto. O código é público só para consulta
+e avaliação; ver [`LICENSE`](LICENSE).
