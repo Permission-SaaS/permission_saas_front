@@ -1,7 +1,9 @@
 # permission_saas_front
 
-Front-end do **Permission SaaS**. Ainda sem código: a stack vai ser definida antes da primeira
-implementação.
+Front-end do **Permission SaaS**, ainda sem código. A stack é React com TypeScript, o Vite é a
+ferramenta de build e o Tailwind CSS cuida dos estilos. A decisão e a troca do Create React App pelo Vite estão no ADR-016, no
+[`docs/ARCHITECTURE.md`](https://github.com/Permission-SaaS/permission_saas/blob/main/docs/ARCHITECTURE.md)
+do guarda-chuva.
 
 Vai consumir a API da aplicação principal (`permission-service`, porta 8080), documentada no
 [`API.md` do `permission_saas_api`](https://github.com/Permission-SaaS/permission_saas_api/blob/main/docs/API.md).
