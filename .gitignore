@@ -1,4 +1,8 @@
-# As regras da stack (dependências, build) entram junto com o primeiro código.
+### Node / Vite ###
+node_modules/
+dist/
+dist-ssr/
+*.local
 
 ### Claude / Claude Code (config pessoal) ###
 .claude/
