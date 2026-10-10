@@ -13,7 +13,8 @@ CLAUDE.md
 
 ### IDEs ###
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 ### Variáveis de ambiente e segredos ###
 .env

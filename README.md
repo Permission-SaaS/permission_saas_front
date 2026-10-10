@@ -19,14 +19,20 @@ arquitetura e o log de ADRs.
 Requer Node.js 20.19+ ou 22.12+, a versão mínima do Vite 8.
 
 ```bash
-npm install       # instala as dependências do package-lock.json
-npm run dev       # servidor de desenvolvimento em http://localhost:5173
-npm run build     # confere os tipos (tsc -b) e gera a versão de produção em dist/
-npm run preview   # serve a dist/ para testar o build
-npm run lint      # ESLint
+npm install           # instala as dependências do package-lock.json
+npm run dev           # servidor de desenvolvimento em http://localhost:5173
+npm run build         # confere os tipos (tsc -b) e gera a versão de produção em dist/
+npm run preview       # serve a dist/ para testar o build
+npm run lint          # ESLint
+npm run format        # formata o projeto com o Prettier
+npm run format:check  # só confere a formatação, sem alterar nada
 ```
 
 O `npm run dev` não confere tipos: um erro de tipo só aparece no editor e no `npm run build`.
+
+A formatação segue o `.prettierrc`: os padrões do Prettier, mais o plugin do Tailwind, que ordena as
+classes. No VS Code, o projeto recomenda as extensões do Prettier, do ESLint e do Tailwind
+(`.vscode/extensions.json`).
 
 ## Licença
 
