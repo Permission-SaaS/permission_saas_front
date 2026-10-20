@@ -1,51 +1,58 @@
-import { NavLink, Outlet } from "react-router";
+import { ErrorBoundary } from "@/shared";
+import { NavLink, Outlet, useLocation } from "react-router";
+
+const routes = [
+  {
+    key: "home",
+    path: "/",
+    name: "Início",
+  },
+  {
+    key: "projects",
+    path: "/projects",
+    name: "Projetos",
+  },
+  {
+    key: "new-project",
+    path: "/projects/new",
+    name: "Novo Projeto",
+  },
+  {
+    key: "login",
+    path: "/login",
+    name: "Login",
+  },
+  {
+    key: "register",
+    path: "/register",
+    name: "Registre-se",
+  },
+];
 
 export function AppLayout() {
+  const location = useLocation();
+
   return (
     <>
       <header>
         <h1>Bem vindo(a) ao App</h1>
         <nav>
-          <NavLink
-            to="/"
-            className={({ isActive }) => (isActive ? "font-bold" : "")}
-          >
-            Início
-          </NavLink>
-
-          <NavLink
-            to="/projects"
-            className={({ isActive }) => (isActive ? "font-bold" : "")}
-            end
-          >
-            Projetos
-          </NavLink>
-
-          <NavLink
-            to="/projects/new"
-            className={({ isActive }) => (isActive ? "font-bold" : "")}
-          >
-            Novo Projeto
-          </NavLink>
-
-          <NavLink
-            to="/login"
-            className={({ isActive }) => (isActive ? "font-bold" : "")}
-          >
-            Login
-          </NavLink>
-
-          <NavLink
-            to="/register"
-            className={({ isActive }) => (isActive ? "font-bold" : "")}
-          >
-            Registre-se
-          </NavLink>
+          {routes.map((route) => (
+            <NavLink
+              key={route.key}
+              to={route.path}
+              className={({ isActive }) => (isActive ? "font-bold" : "")}
+            >
+              {route.name}
+            </NavLink>
+          ))}
         </nav>
       </header>
 
       <main>
-        <Outlet />
+        <ErrorBoundary key={location.pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </>
   );

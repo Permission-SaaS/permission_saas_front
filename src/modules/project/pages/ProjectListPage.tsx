@@ -1,3 +1,3 @@
 export function ProjectListPage() {
-  return <div>ProjectListPage</div>;
+  return <div>Página de Listagem de Projetos</div>;
 }
