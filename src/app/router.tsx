@@ -4,8 +4,8 @@ import {
   ProjectDetailPage,
   ProjectFormPage,
   ProjectListPage,
-} from "../modules/project";
-import { LoginPage, RegisterPage } from "../modules/identity";
+} from "@/modules/project";
+import { LoginPage, RegisterPage } from "@/modules/identity";
 import { NotFoundPage } from "./NotFoundPage";
 
 export function AppRoutes() {
