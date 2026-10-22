@@ -18,7 +18,8 @@ src/
 ├── main.tsx                # ponto de entrada: monta o <App /> no #root
 ├── index.css               # @import "tailwindcss"
 ├── app/                    # liga as peças; o único lugar que conhece todos os módulos
-│   ├── App.tsx             # <BrowserRouter> em volta das rotas
+│   ├── App.tsx             # ErrorBoundary, Providers e <BrowserRouter> em volta das rotas
+│   ├── providers.tsx       # Providers: junta os providers do app (hoje, só o de avisos)
 │   ├── router.tsx          # AppRoutes: a árvore de rotas
 │   ├── NotFoundPage.tsx    # o 404
 │   └── layout/
@@ -31,25 +32,32 @@ src/
 │       ├── index.ts
 │       └── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
 └── shared/                 # genérico, sem regra de negócio
-    ├── index.ts            # barrel: só o que é público (ErrorBoundary)
-    └── components/
-        └── ErrorBoundary/  # componente com arquivo satélite vira pasta
-            ├── ErrorBoundary.tsx
-            └── ErrorBoundaryFallback.tsx   # interno: fora do barrel
+    ├── index.ts            # barrel: só o que é público (ErrorBoundary, NotificationProvider, useNotification)
+    ├── components/
+    │   └── ErrorBoundary/  # componente com arquivo satélite vira pasta
+    │       ├── ErrorBoundary.tsx
+    │       └── ErrorBoundaryFallback.tsx   # interno: fora do barrel
+    └── context/
+        └── NotificationContext/            # um contexto e as suas peças (ver Context)
+            ├── NotificationContext.ts      # createContext: interno, só o hook o lê
+            ├── NotificationProvider.tsx    # o state da lista e os comandos notify e dismiss
+            ├── useNotification.ts          # o hook: lê o contexto e falha fora do provider
+            ├── Toast.tsx                   # um aviso, com o próprio timer: interno
+            └── types.ts                    # os tipos que as peças dividem
 ```
 
 **Pasta só existe quando tem arquivo**, até porque o git não guarda pasta vazia. As que o plano prevê
 nascem com o primeiro arquivo de cada uma:
 
-| Pasta                                             | O que guarda                                                 |
-| ------------------------------------------------- | ------------------------------------------------------------ |
-| `shared/api/`, `shared/context/`, `shared/hooks/` | o `httpClient`, o `NotificationContext` e os hooks genéricos |
-| `modules/<módulo>/components/`                    | componentes usados só por aquele módulo                      |
-| `modules/<módulo>/api/`                           | as chamadas HTTP do módulo                                   |
-| `modules/<módulo>/hooks/`                         | hooks do módulo                                              |
-| `modules/<módulo>/types.ts`                       | os tipos dos DTOs da API                                     |
-| `modules/identity/store/`                         | o `authSlice` do Redux                                       |
-| `app/providers.tsx` e `app/store.ts`              | os providers e a store do Redux                              |
+| Pasta                          | O que guarda                            |
+| ------------------------------ | --------------------------------------- |
+| `shared/api/`, `shared/hooks/` | o `httpClient` e os hooks genéricos     |
+| `modules/<módulo>/components/` | componentes usados só por aquele módulo |
+| `modules/<módulo>/api/`        | as chamadas HTTP do módulo              |
+| `modules/<módulo>/hooks/`      | hooks do módulo                         |
+| `modules/<módulo>/types.ts`    | os tipos dos DTOs da API                |
+| `modules/identity/store/`      | o `authSlice` do Redux                  |
+| `app/store.ts`                 | a store do Redux                        |
 
 ---
 
@@ -137,10 +145,13 @@ React Router 8 no **modo declarativo**: `<BrowserRouter>`, `<Routes>` e `<Route>
 | Componente                        | PascalCase, um por arquivo, arquivo com o mesmo nome, `.tsx`                                            | `RegisterPage.tsx`                 |
 | Página                            | sufixo `Page`, na pasta `pages/` do módulo                                                              | `ProjectListPage`                  |
 | Arquivo de ligação do `app`       | minúsculo, pelo papel que cumpre                                                                        | `router.tsx` (exporta `AppRoutes`) |
-| Barrel do módulo e do `shared`    | `index.ts`: não tem JSX, então não é `.tsx`                                                             | `modules/project/index.ts`         |
+| Barrel do módulo e do `shared`    | `index.ts`                                                                                              | `modules/project/index.ts`         |
+| Arquivo sem JSX                   | `.ts`, não `.tsx`: o barrel, o contexto, o hook, os tipos                                               | `useNotification.ts`               |
 | Componente com arquivos satélites | vira uma pasta com o nome dele; os arquivos mantêm o nome do componente, sem `index.ts` dentro da pasta | `shared/components/ErrorBoundary/` |
-| Handler de evento                 | `handle` + ação                                                                                         | `handleClick`, `handleRetry`       |
-| Prop de callback                  | `on` + ação; faz par com o `handle` de quem a passa                                                     | `onRetry`, `onSubmit`              |
+| Hook                              | `use` + nome                                                                                            | `useNotification`                  |
+| Handler de evento                 | `handle` + ação; só para uma função criada para responder a um evento do componente                     | `handleClick`, `handleRetry`       |
+| Comando de um contexto ou serviço | só o verbo, sem `handle`: é uma ação que qualquer um chama, não a resposta a um evento                  | `notify`, `dismiss`                |
+| Prop de callback                  | `on` + ação; faz par com o `handle` de quem a passa, ou recebe direto um comando                        | `onRetry`, `onDismiss={dismiss}`   |
 
 **Idioma:** o código fica em inglês (nomes, arquivos, URLs e commits), e o texto que aparece na tela
 fica em português.
@@ -189,6 +200,24 @@ fica em português.
 - **Quando o valor novo depende do anterior, passe uma função ao setter:**
   `setCount((c) => c + 1)`.
 - **Variável local não sobrevive ao render.** O que precisa persistir entre renders vai para o state.
+
+### Context
+
+Decidido em 22/10, com o `NotificationContext`:
+
+- **Uma pasta por contexto em `shared/context/`, com as peças em arquivos separados:** o contexto
+  (`createContext`), o provider, o hook e o `types.ts` que eles dividem. A regra
+  `react-refresh/only-export-components` não aceita contexto, hook e componente no mesmo `.tsx`.
+- **O valor padrão é `null`, e o hook falha fora do provider:** `createContext<Valor | null>(null)`, e o
+  hook lança um erro com mensagem clara quando recebe `null`. Um padrão com funções que não fazem nada
+  esconderia o provider esquecido: o aviso simplesmente não apareceria.
+- **Só o hook lê o contexto:** o barrel exporta o provider e o hook, nunca o contexto.
+- **O state é privado do provider, e o valor publica só comandos.** A lista de avisos fica no provider,
+  que também a desenha; o valor tem só `notify` e `dismiss`. Assim, quem só dispara avisos não renderiza
+  de novo quando a lista muda.
+- **O valor publicado é estável:** `useCallback` nos comandos e `useMemo` no objeto. Com a atualização
+  por função no setter, os comandos não leem o state, e as dependências ficam vazias. Um valor novo a
+  cada render faria todo componente que usa o hook renderizar de novo.
 
 ### TypeScript
 

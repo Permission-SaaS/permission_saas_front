@@ -3,7 +3,8 @@
 Front-end do **Permission SaaS**, em React com TypeScript. O Vite é a ferramenta de build e o
 Tailwind CSS cuida dos estilos. A decisão e a troca do Create React App pelo Vite estão no ADR-016, no
 [`docs/ARCHITECTURE.md`](https://github.com/Permission-SaaS/permission_saas/blob/main/docs/ARCHITECTURE.md)
-do guarda-chuva. Por enquanto, tem só a navegação: o layout e as rotas, com páginas provisórias.
+do guarda-chuva. Por enquanto, tem a navegação (o layout e as rotas, com páginas provisórias), uma tela
+de erro para falhas de render e os avisos na tela (toasts), prontos para os próximos passos usarem.
 
 Vai consumir a API da aplicação principal (`permission-service`, porta 8080), documentada no
 [`API.md` do `permission_saas_api`](https://github.com/Permission-SaaS/permission_saas_api/blob/main/docs/API.md).
