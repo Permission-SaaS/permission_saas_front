@@ -25,9 +25,9 @@ src/
 │   └── layout/
 │       └── AppLayout.tsx   # cabeçalho, menu e <Outlet />
 ├── modules/
-│   ├── identity/           # cadastro e login   ↔ módulo identity do permission-service
+│   ├── identity/           # login              ↔ módulo identity do permission-service
 │   │   ├── index.ts
-│   │   └── pages/          # LoginPage, RegisterPage
+│   │   └── pages/          # LoginPage
 │   └── project/            # CRUD de projetos   ↔ módulo project
 │       ├── index.ts
 │       └── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
@@ -71,7 +71,7 @@ As importações vão num sentido só: **`app` → `modules` → `shared`**.
 - O `shared` também tem barrel (decidido em 19/10): quem está fora importa de `@/shared`, e só o que é
   público entra no `index.ts` dele. O que só serve a outro arquivo do `shared` fica de fora, como o
   `ErrorBoundaryFallback`, que só o `ErrorBoundary` usa.
-- O `app` também importa os módulos pelo `index.ts`: `import { RegisterPage } from "@/modules/identity";`.
+- O `app` também importa os módulos pelo `index.ts`: `import { LoginPage } from "@/modules/identity";`.
 
 O motivo é evitar ciclo. O `app` importa todos os módulos; se um módulo importasse do `app`, os dois
 dependeriam um do outro, e a fronteira deixaria de existir. É a mesma ideia das fronteiras do Spring
@@ -83,7 +83,7 @@ O alias `@/` aponta para `src/` (decidido em 17/10):
 
 - **Atravessou uma pasta de topo, use o alias:** do `app` para os módulos, dos módulos para o `shared`, do
   `app` para o `shared`. Exemplo: `@/shared`, `@/modules/project`.
-- **Dentro do mesmo módulo ou da mesma pasta, use o caminho relativo:** `./pages/RegisterPage`.
+- **Dentro do mesmo módulo ou da mesma pasta, use o caminho relativo:** `./pages/LoginPage`.
 
 Assim, o próprio import mostra quando uma fronteira é cruzada, e um módulo continua fácil de mover. O alias
 não muda a regra do barrel: `@/modules/project` pode, `@/modules/project/pages/...` vindo de fora do módulo
@@ -100,7 +100,7 @@ A pergunta que decide é **o que o arquivo precisa importar**:
 | O arquivo...                                             | Vai para         | Exemplo                                                         |
 | -------------------------------------------------------- | ---------------- | --------------------------------------------------------------- |
 | importa coisas de vários módulos                         | `app`            | o router, o `AppLayout`, cujo menu aponta para todos os módulos |
-| tem regra de negócio de um módulo                        | o próprio módulo | `RegisterForm`, `ProjectCard`                                   |
+| tem regra de negócio de um módulo                        | o próprio módulo | `LoginForm`, `ProjectCard`                                      |
 | não importa nada de `modules` e não tem regra de negócio | `shared`         | `Button`, `httpClient`                                          |
 
 Um componente **nasce no módulo** que o usa e só sobe para o `shared` quando um segundo módulo
@@ -142,7 +142,7 @@ React Router 8 no **modo declarativo**: `<BrowserRouter>`, `<Routes>` e `<Route>
 
 | O quê                             | Convenção                                                                                               | Exemplo                            |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| Componente                        | PascalCase, um por arquivo, arquivo com o mesmo nome, `.tsx`                                            | `RegisterPage.tsx`                 |
+| Componente                        | PascalCase, um por arquivo, arquivo com o mesmo nome, `.tsx`                                            | `LoginPage.tsx`                    |
 | Página                            | sufixo `Page`, na pasta `pages/` do módulo                                                              | `ProjectListPage`                  |
 | Arquivo de ligação do `app`       | minúsculo, pelo papel que cumpre                                                                        | `router.tsx` (exporta `AppRoutes`) |
 | Barrel do módulo e do `shared`    | `index.ts`                                                                                              | `modules/project/index.ts`         |
@@ -158,9 +158,9 @@ fica em português.
 
 ### Exports
 
-- **Só exports nomeados:** `export function RegisterPage()`, nunca `export default`. O nome fica o mesmo
+- **Só exports nomeados:** `export function LoginPage()`, nunca `export default`. O nome fica o mesmo
   em todo import, renomear e importar pelo editor funcionam melhor, e o barrel só repassa.
-- **O barrel repassa pelo nome:** `export { RegisterPage } from "./pages/RegisterPage";`.
+- **O barrel repassa pelo nome:** `export { LoginPage } from "./pages/LoginPage";`.
 - **Exceção:** os arquivos de configuração que as ferramentas leem (`vite.config.ts`,
   `eslint.config.js`), porque a ferramenta exige o `export default`.
 
