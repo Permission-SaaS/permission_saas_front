@@ -47,7 +47,7 @@ const variants: Record<
     ),
     role: "status",
   },
-  warn: {
+  warning: {
     borderClassName: "border-amber-200",
     iconClassName: "text-amber-600",
     icon: (
