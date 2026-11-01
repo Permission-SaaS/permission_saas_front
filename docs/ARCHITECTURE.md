@@ -237,6 +237,14 @@ Decidido em 01/11, com o `httpClient`:
 - **Quem trata um erro decide pelo `kind` do `HttpError`**, e pelo `status` quando o `kind` é `"http"`,
   nunca pelo texto da `message`. A mensagem é a da API, como veio, e pode mudar. Um cancelamento
   (`"abort"`) não vira aviso de erro na tela: quem cancelou foi o próprio front.
+- **Cada módulo guarda as chamadas na pasta `api/`** (decidido em 01/11): um `<módulo>Api.ts`, com uma
+  função por endpoint, sempre pelo `httpClient`, e um `<módulo>Keys.ts`, com as chaves de cache do React
+  Query. A `queryFn` sempre repassa o `signal` que o React Query entrega, para a busca ser cancelada
+  quando ninguém mais precisa dela.
+- **Erro de leitura aparece na própria tela** (decidido em 01/11), com o texto escolhido pelo `kind`. O
+  aviso na tela (toast) é para as ações, no `onError` e no `onSuccess` do `useMutation`, que rodam uma
+  vez por ação. Nunca chame o `notify` no corpo do componente: o corpo roda a cada render, duas vezes em
+  dev por causa do `StrictMode`, e cada render geraria outro aviso.
 
 ### TypeScript
 
