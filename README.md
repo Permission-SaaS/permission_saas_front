@@ -30,12 +30,13 @@ npm run preview       # serve a dist/ para testar o build
 npm run lint          # ESLint
 npm run format        # formata o projeto com o Prettier
 npm run format:check  # só confere a formatação, sem alterar nada
+npm run check         # build, lint e format:check, nessa ordem
 ```
 
 O `npm run dev` não confere tipos: um erro de tipo só aparece no editor e no `npm run build`.
 
-A formatação segue o `.prettierrc`: os padrões do Prettier, mais o plugin do Tailwind, que ordena as
-classes. No VS Code, o projeto recomenda as extensões do Prettier, do ESLint e do Tailwind
+A formatação segue o `.prettierrc`: os padrões do Prettier, mais um plugin que ordena os imports e
+remove os não usados e o plugin do Tailwind, que ordena as classes. No VS Code, o projeto recomenda as extensões do Prettier, do ESLint e do Tailwind
 (`.vscode/extensions.json`).
 
 ## Documentação

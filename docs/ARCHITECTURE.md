@@ -19,7 +19,8 @@ src/
 ├── index.css               # @import "tailwindcss"
 ├── app/                    # liga as peças; o único lugar que conhece todos os módulos
 │   ├── App.tsx             # ErrorBoundary, Providers e <BrowserRouter> em volta das rotas
-│   ├── providers.tsx       # Providers: junta os providers do app (hoje, só o de avisos)
+│   ├── providers.tsx       # Providers: junta os providers do app (avisos e React Query)
+│   ├── queryClient.ts      # o QueryClient, o cache do React Query, criado uma vez só
 │   ├── router.tsx          # AppRoutes: a árvore de rotas
 │   ├── NotFoundPage.tsx    # o 404
 │   └── layout/
@@ -30,7 +31,11 @@ src/
 │   │   └── pages/          # LoginPage
 │   └── project/            # CRUD de projetos   ↔ módulo project
 │       ├── index.ts
-│       └── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
+│       ├── api/
+│       │   ├── projectApi.ts   # as chamadas HTTP do módulo, pelo httpClient
+│       │   └── projectKeys.ts  # as chaves de cache do React Query
+│       ├── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
+│       └── types.ts        # os tipos dos DTOs da API
 └── shared/                 # genérico, sem regra de negócio
     ├── index.ts            # barrel: só o que é público (ErrorBoundary, httpClient, HttpError, NotificationProvider, useNotification)
     ├── api/
@@ -269,9 +274,10 @@ Decidido em 01/11, com o `httpClient`:
 ## Antes de cada commit
 
 ```bash
+npm run check         # os três abaixo, em ordem; é o comando de um pipeline
 npm run build         # tsc -b: erro de tipo quebra o build (o npm run dev não confere tipos)
 npm run lint          # ESLint
-npm run format:check  # Prettier
+npm run format:check  # Prettier, inclusive a ordem dos imports
 ```
 
 - **ESLint:** as regras recomendadas do JavaScript e do `typescript-eslint`, mais dois plugins:
@@ -280,6 +286,10 @@ npm run format:check  # Prettier
   - o `react-refresh`, que exige que um arquivo `.tsx` exporte só componentes, para o Fast Refresh
     funcionar.
 - **Prettier:** os padrões escritos no `.prettierrc` (80 colunas, aspas duplas, ponto e vírgula e
-  vírgula final), mais o plugin do Tailwind.
+  vírgula final), mais dois plugins:
+  - o `prettier-plugin-organize-imports` (decidido em 01/11), que ordena os imports e remove os não
+    usados com o mesmo motor do "Organize Imports" do VS Code (Shift+Alt+O). O `npm run format` arruma, e
+    o `npm run format:check` falha se um arquivo estiver fora de ordem;
+  - o do Tailwind, que ordena as classes. Ele precisa ser o último da lista de plugins.
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/) em inglês, como em todos os
   repositórios. As regras ficam no `CLAUDE.md` do guarda-chuva.
