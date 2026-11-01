@@ -32,7 +32,10 @@ src/
 │       ├── index.ts
 │       └── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
 └── shared/                 # genérico, sem regra de negócio
-    ├── index.ts            # barrel: só o que é público (ErrorBoundary, NotificationProvider, useNotification)
+    ├── index.ts            # barrel: só o que é público (ErrorBoundary, httpClient, HttpError, NotificationProvider, useNotification)
+    ├── api/
+    │   ├── httpClient.ts   # get/post/put/delete: prefixo /api, JSON, timeout e cancelamento
+    │   └── HttpError.ts    # o erro de toda chamada, com o kind e o status
     ├── components/
     │   └── ErrorBoundary/  # componente com arquivo satélite vira pasta
     │       ├── ErrorBoundary.tsx
@@ -51,7 +54,7 @@ nascem com o primeiro arquivo de cada uma:
 
 | Pasta                          | O que guarda                            |
 | ------------------------------ | --------------------------------------- |
-| `shared/api/`, `shared/hooks/` | o `httpClient` e os hooks genéricos     |
+| `shared/hooks/`                | os hooks genéricos                      |
 | `modules/<módulo>/components/` | componentes usados só por aquele módulo |
 | `modules/<módulo>/api/`        | as chamadas HTTP do módulo              |
 | `modules/<módulo>/hooks/`      | hooks do módulo                         |
@@ -218,6 +221,17 @@ Decidido em 22/10, com o `NotificationContext`:
 - **O valor publicado é estável:** `useCallback` nos comandos e `useMemo` no objeto. Com a atualização
   por função no setter, os comandos não leem o state, e as dependências ficam vazias. Um valor novo a
   cada render faria todo componente que usa o hook renderizar de novo.
+
+### Chamadas à API
+
+Decidido em 01/11, com o `httpClient`:
+
+- **Toda chamada à API passa pelo `httpClient` do `shared`**, com o caminho sem o prefixo:
+  `httpClient.get("/projects")`. Só o `httpClient` conhece o `/api`, e ninguém chama `fetch` direto. É
+  ele que junta o prefixo, o JSON, o timeout, o cancelamento e a conversão dos erros num lugar só.
+- **Quem trata um erro decide pelo `kind` do `HttpError`**, e pelo `status` quando o `kind` é `"http"`,
+  nunca pelo texto da `message`. A mensagem é a da API, como veio, e pode mudar. Um cancelamento
+  (`"abort"`) não vira aviso de erro na tela: quem cancelou foi o próprio front.
 
 ### TypeScript
 
