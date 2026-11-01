@@ -1,5 +1,5 @@
-import { NotificationContext } from "./NotificationContext";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { NotificationContext } from "./NotificationContext";
 import { Toast } from "./Toast";
 import type {
   Notification,

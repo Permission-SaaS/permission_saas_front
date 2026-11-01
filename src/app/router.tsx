@@ -1,11 +1,11 @@
-import { Navigate, Route, Routes } from "react-router";
-import { AppLayout } from "./layout/AppLayout";
+import { LoginPage, RegisterPage } from "@/modules/identity";
 import {
   ProjectDetailPage,
   ProjectFormPage,
   ProjectListPage,
 } from "@/modules/project";
-import { LoginPage, RegisterPage } from "@/modules/identity";
+import { Navigate, Route, Routes } from "react-router";
+import { AppLayout } from "./layout/AppLayout";
 import { NotFoundPage } from "./NotFoundPage";
 
 export function AppRoutes() {
