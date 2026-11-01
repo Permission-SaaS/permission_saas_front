@@ -5,6 +5,9 @@
   "printWidth": 80,
   "tabWidth": 2,
   "endOfLine": "lf",
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-tailwindcss"
+  ],
   "tailwindStylesheet": "./src/index.css"
 }
