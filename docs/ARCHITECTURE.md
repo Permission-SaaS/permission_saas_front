@@ -34,24 +34,34 @@ src/
 │       ├── api/
 │       │   ├── projectApi.ts   # as chamadas HTTP do módulo, pelo httpClient
 │       │   └── projectKeys.ts  # as chaves de cache do React Query
+│       ├── components/     # ProjectList (a mensagem de vazio ou a grade) e ProjectCard (um projeto no Card)
 │       ├── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
 │       └── types.ts        # os tipos dos DTOs da API
 └── shared/                 # genérico, sem regra de negócio
-    ├── index.ts            # barrel: só o que é público (ErrorBoundary, httpClient, HttpError, NotificationProvider, useNotification)
+    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Card e as partes dele, httpClient, HttpError, NotificationProvider, useNotification, useDebounce, formatDateTime)
     ├── api/
     │   ├── httpClient.ts   # get/post/put/delete: prefixo /api, JSON, timeout e cancelamento
     │   └── HttpError.ts    # o erro de toda chamada, com o kind e o status
     ├── components/
+    │   ├── Card/           # a caixa e as partes dela, todas públicas: o conteúdo vem pelo children
+    │   │   ├── Card.tsx
+    │   │   ├── CardHeader.tsx
+    │   │   ├── CardBody.tsx
+    │   │   └── CardFooter.tsx
     │   └── ErrorBoundary/  # componente com arquivo satélite vira pasta
     │       ├── ErrorBoundary.tsx
     │       └── ErrorBoundaryFallback.tsx   # interno: fora do barrel
-    └── context/
-        └── NotificationContext/            # um contexto e as suas peças (ver Context)
-            ├── NotificationContext.ts      # createContext: interno, só o hook o lê
-            ├── NotificationProvider.tsx    # o state da lista e os comandos notify e dismiss
-            ├── useNotification.ts          # o hook: lê o contexto e falha fora do provider
-            ├── Toast.tsx                   # um aviso, com o próprio timer: interno
-            └── types.ts                    # os tipos que as peças dividem
+    ├── context/
+    │   └── NotificationContext/            # um contexto e as suas peças (ver Context)
+    │       ├── NotificationContext.ts      # createContext: interno, só o hook o lê
+    │       ├── NotificationProvider.tsx    # o state da lista e os comandos notify e dismiss
+    │       ├── useNotification.ts          # o hook: lê o contexto e falha fora do provider
+    │       ├── Toast.tsx                   # um aviso, com o próprio timer: interno
+    │       └── types.ts                    # os tipos que as peças dividem
+    ├── hooks/
+    │   └── useDebounce.ts  # o valor atrasado: só acompanha o original depois de uma pausa
+    └── utils/
+        └── formatDateTime.ts   # a data ISO da API em texto pt-BR, no fuso de quem usa
 ```
 
 **Pasta só existe quando tem arquivo**, até porque o git não guarda pasta vazia. As que o plano prevê
@@ -60,6 +70,7 @@ nascem com o primeiro arquivo de cada uma:
 | Pasta                          | O que guarda                            |
 | ------------------------------ | --------------------------------------- |
 | `shared/hooks/`                | os hooks genéricos                      |
+| `shared/utils/`                | as funções genéricas, sem React         |
 | `modules/<módulo>/components/` | componentes usados só por aquele módulo |
 | `modules/<módulo>/api/`        | as chamadas HTTP do módulo              |
 | `modules/<módulo>/hooks/`      | hooks do módulo                         |
@@ -109,10 +120,14 @@ A pergunta que decide é **o que o arquivo precisa importar**:
 | -------------------------------------------------------- | ---------------- | --------------------------------------------------------------- |
 | importa coisas de vários módulos                         | `app`            | o router, o `AppLayout`, cujo menu aponta para todos os módulos |
 | tem regra de negócio de um módulo                        | o próprio módulo | `LoginForm`, `ProjectCard`                                      |
-| não importa nada de `modules` e não tem regra de negócio | `shared`         | `Button`, `httpClient`                                          |
+| não importa nada de `modules` e não tem regra de negócio | `shared`         | `Button`, `Card`, `httpClient`                                  |
 
-Um componente **nasce no módulo** que o usa e só sobe para o `shared` quando um segundo módulo
-**já precisa** dele, não quando "pode vir a precisar".
+- **Peça visual sem domínio nasce no `shared`** (decidido em 03/11): `Button`, `Card`. Ela só
+  desenha uma caixa e recebe o conteúdo pelo `children`, então não tem nada de módulo nenhum para
+  carregar. Quem põe o domínio é o componente do módulo que a usa, como o `ProjectCard` em cima do
+  `Card`.
+- **Componente de tela nasce no módulo** que o usa e só sobe para o `shared` quando um segundo módulo
+  **já precisa** dele, não quando "pode vir a precisar".
 
 ---
 
@@ -245,6 +260,13 @@ Decidido em 01/11, com o `httpClient`:
   aviso na tela (toast) é para as ações, no `onError` e no `onSuccess` do `useMutation`, que rodam uma
   vez por ação. Nunca chame o `notify` no corpo do componente: o corpo roda a cada render, duas vezes em
   dev por causa do `StrictMode`, e cada render geraria outro aviso.
+- **A chave da query e a chamada recebem o mesmo objeto de filtros** (decidido em 03/11), montado uma
+  vez no corpo do componente, para a chave do cache nunca divergir do que foi buscado. Um objeto novo a
+  cada render não faz mal ali, porque o React Query compara a chave pelo conteúdo. Na lista de
+  dependências de um `useEffect`, faz: lá a comparação é por referência.
+- **Debounce só para digitação** (decidido em 03/11): o campo de texto passa pelo `useDebounce`; o select
+  e o checkbox vão direto para o filtro, porque um clique é uma ação só e o atraso só deixaria a tela
+  lenta.
 
 ### TypeScript
 
