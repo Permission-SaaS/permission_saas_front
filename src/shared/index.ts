@@ -2,6 +2,8 @@ export { httpClient } from "./api/httpClient";
 export { HttpError } from "./api/HttpError";
 export type { HttpErrorKind } from "./api/HttpError";
 export { HttpStatus } from "./api/HttpStatus";
+export { Button } from "./components/Button/Button";
+export { LinkButton } from "./components/Button/LinkButton";
 export { Card } from "./components/Card/Card";
 export { CardBody } from "./components/Card/CardBody";
 export { CardFooter } from "./components/Card/CardFooter";

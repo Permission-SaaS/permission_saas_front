@@ -1,7 +1,6 @@
-import { describeError, useDebounce } from "@/shared";
+import { describeError, LinkButton, useDebounce } from "@/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router";
 import { listProjects } from "../api/projectApi";
 import { projectKeys } from "../api/projectKeys";
 import { ProjectList } from "../components/ProjectList";
@@ -53,12 +52,9 @@ export function ProjectListPage() {
           Lista de Projetos
         </div>
         <div>
-          <Link
-            className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-            to="/projects/new"
-          >
+          <LinkButton variant="primary" to="/projects/new">
             Novo Projeto
-          </Link>
+          </LinkButton>
         </div>
       </div>
       <form

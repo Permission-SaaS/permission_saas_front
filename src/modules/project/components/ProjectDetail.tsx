@@ -1,4 +1,5 @@
 import {
+  Button,
   Card,
   CardBody,
   CardFooter,
@@ -6,12 +7,13 @@ import {
   describeError,
   formatDateTime,
   HttpStatus,
+  LinkButton,
   Modal,
   useNotification,
 } from "@/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { deleteProject, getProject } from "../api/projectApi";
 import { projectKeys } from "../api/projectKeys";
 import { ProjectNotFound } from "./ProjectNotFound";
@@ -20,15 +22,6 @@ import { ProjectStatusBadge } from "./ProjectStatusBadge";
 interface Props {
   id: string;
 }
-
-const DISABLED_BUTTON_CLASSNAMES =
-  "disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400";
-
-const DELETE_BUTTON_CLASSNAMES =
-  "rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100";
-
-const DEFAULT_BUTTON_CLASSNAMES =
-  "rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500";
 
 export function ProjectDetail({ id }: Props) {
   const queryClient = useQueryClient();
@@ -164,20 +157,16 @@ export function ProjectDetail({ id }: Props) {
         </CardBody>
 
         <CardFooter>
-          <button
-            className={`${DEFAULT_BUTTON_CLASSNAMES} ${DISABLED_BUTTON_CLASSNAMES}`}
-            onClick={handleDeleteModalClose}
-            disabled={isDeleting}
-          >
+          <Button onClick={handleDeleteModalClose} disabled={isDeleting}>
             Cancelar
-          </button>
-          <button
-            className={`${DELETE_BUTTON_CLASSNAMES} ${DISABLED_BUTTON_CLASSNAMES}`}
+          </Button>
+          <Button
+            variant="danger"
             disabled={!isProjectNameConfirmed || isDeleting}
             onClick={handleDeleteProject}
           >
             {isDeleting ? "Deletando..." : "Excluir"}
-          </button>
+          </Button>
         </CardFooter>
       </Modal>
 
@@ -210,19 +199,14 @@ export function ProjectDetail({ id }: Props) {
           </div>
         </CardBody>
         <CardFooter>
-          <Link
-            className={DEFAULT_BUTTON_CLASSNAMES}
-            to={`/projects/${id}/edit`}
-          >
-            Editar
-          </Link>
-          <button
-            className={`${DELETE_BUTTON_CLASSNAMES} ${DISABLED_BUTTON_CLASSNAMES}`}
+          <LinkButton to={`/projects/${id}/edit`}>Editar</LinkButton>
+          <Button
+            variant="danger"
             disabled={isDeleting}
             onClick={handleDeleteModalOpen}
           >
             Excluir
-          </button>
+          </Button>
         </CardFooter>
       </Card>
     </>
