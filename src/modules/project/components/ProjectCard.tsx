@@ -7,6 +7,7 @@ import {
 } from "@/shared";
 import { Link } from "react-router";
 import type { Project } from "../types";
+import { ProjectStatusBadge } from "./ProjectStatusBadge";
 
 interface Props {
   project: Project;
@@ -18,11 +19,7 @@ export function ProjectCard({ project }: Props) {
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <span className="truncate">{project.name}</span>
-          <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${project.active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}
-          >
-            {project.active ? "Ativo" : "Inativo"}
-          </span>
+          <ProjectStatusBadge active={project.active} />
         </div>
       </CardHeader>
       <CardBody>{project.description ?? "Sem descrição"}</CardBody>
