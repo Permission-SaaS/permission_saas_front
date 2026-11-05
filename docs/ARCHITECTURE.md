@@ -35,12 +35,16 @@ src/
 │       ├── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
 │       └── types.ts        # os tipos dos DTOs da API
 └── shared/                 # genérico, sem regra de negócio
-    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Card e as partes dele, Modal, httpClient, HttpError, HttpStatus, NotificationProvider, useNotification, useDebounce, describeError, formatDateTime, isUuid)
+    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Button, LinkButton, Card e as partes dele, Modal, httpClient, HttpError, HttpStatus, NotificationProvider, useNotification, useDebounce, describeError, formatDateTime, isUuid)
     ├── api/
     │   ├── httpClient.ts   # get/post/put/delete: prefixo /api, JSON, timeout e cancelamento
     │   ├── HttpError.ts    # o erro de toda chamada, com o kind e o status
     │   └── HttpStatus.ts   # os códigos HTTP que o front compara, pelo nome
     ├── components/
+    │   ├── Button/         # os botões: a variante (default, danger, primary) vem por prop
+    │   │   ├── Button.tsx
+    │   │   ├── LinkButton.tsx      # um Link com a aparência de botão
+    │   │   └── buttonClasses.ts    # as classes de cada variante: interno
     │   ├── Card/           # a caixa e as partes dela, todas públicas: o conteúdo vem pelo children
     │   │   ├── Card.tsx
     │   │   ├── CardHeader.tsx
@@ -225,6 +229,10 @@ fica em português.
   um input por `value` e `onChange`. O `showModal()` já traz o Esc, o foco preso dentro do modal e o fundo
   escurecido, e o conteúdo desmonta ao fechar. Quando o projeto adotar componentes de UI, o `Modal` pode
   ser substituído ou ampliado.
+
+- **Botão sempre pelo `Button` ou `LinkButton` do `shared`** (decidido em 04/11), com a variante por prop
+  e sem `className`, para o visual ficar num lugar só. O `Button` usa `type="button"` por padrão, para não
+  enviar um formulário sem querer; o botão de envio pede `type="submit"`.
 
 ### State
 
