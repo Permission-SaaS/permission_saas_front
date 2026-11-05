@@ -26,31 +26,30 @@ src/
 │   └── layout/
 │       └── AppLayout.tsx   # cabeçalho, menu e <Outlet />
 ├── modules/
-│   ├── identity/           # login              ↔ módulo identity do permission-service
-│   │   ├── index.ts
-│   │   └── pages/          # LoginPage
 │   └── project/            # CRUD de projetos   ↔ módulo project
 │       ├── index.ts
 │       ├── api/
 │       │   ├── projectApi.ts   # as chamadas HTTP do módulo, pelo httpClient
 │       │   └── projectKeys.ts  # as chaves de cache do React Query
-│       ├── components/     # ProjectList (a mensagem de vazio ou a grade) e ProjectCard (um projeto no Card)
+│       ├── components/     # ProjectList (a mensagem de vazio ou a grade), ProjectCard (um projeto no Card), ProjectDetail (busca, mostra e exclui), ProjectNotFound e ProjectStatusBadge
 │       ├── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
 │       └── types.ts        # os tipos dos DTOs da API
 └── shared/                 # genérico, sem regra de negócio
-    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Card e as partes dele, httpClient, HttpError, NotificationProvider, useNotification, useDebounce, formatDateTime)
+    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Card e as partes dele, Modal, httpClient, HttpError, HttpStatus, NotificationProvider, useNotification, useDebounce, describeError, formatDateTime, isUuid)
     ├── api/
     │   ├── httpClient.ts   # get/post/put/delete: prefixo /api, JSON, timeout e cancelamento
-    │   └── HttpError.ts    # o erro de toda chamada, com o kind e o status
+    │   ├── HttpError.ts    # o erro de toda chamada, com o kind e o status
+    │   └── HttpStatus.ts   # os códigos HTTP que o front compara, pelo nome
     ├── components/
     │   ├── Card/           # a caixa e as partes dela, todas públicas: o conteúdo vem pelo children
     │   │   ├── Card.tsx
     │   │   ├── CardHeader.tsx
     │   │   ├── CardBody.tsx
     │   │   └── CardFooter.tsx
-    │   └── ErrorBoundary/  # componente com arquivo satélite vira pasta
-    │       ├── ErrorBoundary.tsx
-    │       └── ErrorBoundaryFallback.tsx   # interno: fora do barrel
+    │   ├── ErrorBoundary/  # componente com arquivo satélite vira pasta
+    │   │   ├── ErrorBoundary.tsx
+    │   │   └── ErrorBoundaryFallback.tsx   # interno: fora do barrel
+    │   └── Modal.tsx       # a caixa sobre a tela, no <dialog> nativo: o conteúdo vem pelo children
     ├── context/
     │   └── NotificationContext/            # um contexto e as suas peças (ver Context)
     │       ├── NotificationContext.ts      # createContext: interno, só o hook o lê
@@ -61,22 +60,24 @@ src/
     ├── hooks/
     │   └── useDebounce.ts  # o valor atrasado: só acompanha o original depois de uma pausa
     └── utils/
-        └── formatDateTime.ts   # a data ISO da API em texto pt-BR, no fuso de quem usa
+        ├── describeError.ts    # o texto de um erro de leitura, escolhido pelo kind
+        ├── formatDateTime.ts   # a data ISO da API em texto pt-BR, no fuso de quem usa
+        └── isUuid.ts           # confere o formato de um UUID, sem conferir a versão
 ```
 
 **Pasta só existe quando tem arquivo**, até porque o git não guarda pasta vazia. As que o plano prevê
 nascem com o primeiro arquivo de cada uma:
 
-| Pasta                          | O que guarda                            |
-| ------------------------------ | --------------------------------------- |
-| `shared/hooks/`                | os hooks genéricos                      |
-| `shared/utils/`                | as funções genéricas, sem React         |
-| `modules/<módulo>/components/` | componentes usados só por aquele módulo |
-| `modules/<módulo>/api/`        | as chamadas HTTP do módulo              |
-| `modules/<módulo>/hooks/`      | hooks do módulo                         |
-| `modules/<módulo>/types.ts`    | os tipos dos DTOs da API                |
-| `modules/identity/store/`      | o `authSlice` do Redux                  |
-| `app/store.ts`                 | a store do Redux                        |
+| Pasta                          | O que guarda                                            |
+| ------------------------------ | ------------------------------------------------------- |
+| `shared/hooks/`                | os hooks genéricos                                      |
+| `shared/utils/`                | as funções genéricas, sem React                         |
+| `modules/<módulo>/components/` | componentes usados só por aquele módulo                 |
+| `modules/<módulo>/api/`        | as chamadas HTTP do módulo                              |
+| `modules/<módulo>/hooks/`      | hooks do módulo                                         |
+| `modules/<módulo>/types.ts`    | os tipos dos DTOs da API                                |
+| `modules/identity/`            | o login simulado e, em `store/`, o `authSlice` do Redux |
+| `app/store.ts`                 | a store do Redux                                        |
 
 ---
 
@@ -90,7 +91,7 @@ As importações vão num sentido só: **`app` → `modules` → `shared`**.
 - O `shared` também tem barrel (decidido em 19/10): quem está fora importa de `@/shared`, e só o que é
   público entra no `index.ts` dele. O que só serve a outro arquivo do `shared` fica de fora, como o
   `ErrorBoundaryFallback`, que só o `ErrorBoundary` usa.
-- O `app` também importa os módulos pelo `index.ts`: `import { LoginPage } from "@/modules/identity";`.
+- O `app` também importa os módulos pelo `index.ts`: `import { ProjectListPage } from "@/modules/project";`.
 
 O motivo é evitar ciclo. O `app` importa todos os módulos; se um módulo importasse do `app`, os dois
 dependeriam um do outro, e a fronteira deixaria de existir. É a mesma ideia das fronteiras do Spring
@@ -102,7 +103,7 @@ O alias `@/` aponta para `src/` (decidido em 17/10):
 
 - **Atravessou uma pasta de topo, use o alias:** do `app` para os módulos, dos módulos para o `shared`, do
   `app` para o `shared`. Exemplo: `@/shared`, `@/modules/project`.
-- **Dentro do mesmo módulo ou da mesma pasta, use o caminho relativo:** `./pages/LoginPage`.
+- **Dentro do mesmo módulo ou da mesma pasta, use o caminho relativo:** `./pages/ProjectListPage`.
 
 Assim, o próprio import mostra quando uma fronteira é cruzada, e um módulo continua fácil de mover. O alias
 não muda a regra do barrel: `@/modules/project` pode, `@/modules/project/pages/...` vindo de fora do módulo
@@ -119,10 +120,10 @@ A pergunta que decide é **o que o arquivo precisa importar**:
 | O arquivo...                                             | Vai para         | Exemplo                                                         |
 | -------------------------------------------------------- | ---------------- | --------------------------------------------------------------- |
 | importa coisas de vários módulos                         | `app`            | o router, o `AppLayout`, cujo menu aponta para todos os módulos |
-| tem regra de negócio de um módulo                        | o próprio módulo | `LoginForm`, `ProjectCard`                                      |
+| tem regra de negócio de um módulo                        | o próprio módulo | `ProjectDetail`, `ProjectCard`                                  |
 | não importa nada de `modules` e não tem regra de negócio | `shared`         | `Button`, `Card`, `httpClient`                                  |
 
-- **Peça visual sem domínio nasce no `shared`** (decidido em 03/11): `Button`, `Card`. Ela só
+- **Peça visual sem domínio nasce no `shared`** (decidido em 03/11): `Button`, `Card`, `Modal`. Ela só
   desenha uma caixa e recebe o conteúdo pelo `children`, então não tem nada de módulo nenhum para
   carregar. Quem põe o domínio é o componente do módulo que a usa, como o `ProjectCard` em cima do
   `Card`.
@@ -165,7 +166,7 @@ React Router 8 no **modo declarativo**: `<BrowserRouter>`, `<Routes>` e `<Route>
 
 | O quê                             | Convenção                                                                                               | Exemplo                            |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| Componente                        | PascalCase, um por arquivo, arquivo com o mesmo nome, `.tsx`                                            | `LoginPage.tsx`                    |
+| Componente                        | PascalCase, um por arquivo, arquivo com o mesmo nome, `.tsx`                                            | `ProjectCard.tsx`                  |
 | Página                            | sufixo `Page`, na pasta `pages/` do módulo                                                              | `ProjectListPage`                  |
 | Arquivo de ligação do `app`       | minúsculo, pelo papel que cumpre                                                                        | `router.tsx` (exporta `AppRoutes`) |
 | Barrel do módulo e do `shared`    | `index.ts`                                                                                              | `modules/project/index.ts`         |
@@ -181,9 +182,9 @@ fica em português.
 
 ### Exports
 
-- **Só exports nomeados:** `export function LoginPage()`, nunca `export default`. O nome fica o mesmo
+- **Só exports nomeados:** `export function ProjectListPage()`, nunca `export default`. O nome fica o mesmo
   em todo import, renomear e importar pelo editor funcionam melhor, e o barrel só repassa.
-- **O barrel repassa pelo nome:** `export { LoginPage } from "./pages/LoginPage";`.
+- **O barrel repassa pelo nome:** `export { ProjectListPage } from "./pages/ProjectListPage";`.
 - **Exceção:** os arquivos de configuração que as ferramentas leem (`vite.config.ts`,
   `eslint.config.js`), porque a ferramenta exige o `export default`.
 
@@ -213,6 +214,17 @@ fica em português.
 - **O corpo do componente é puro.** Ele roda a cada render, duas vezes em dev por causa do
   `StrictMode`. Requisição, timer e qualquer alteração fora do componente vão para um handler de
   evento ou para um `useEffect` com função de limpeza, nunca para o corpo.
+
+- **Função usada em callback de hook é declarada antes do hook** (decidido em 04/11). Um `const` só
+  existe depois que a linha dele roda, e um render que para num retorno antecipado nunca chega às linhas
+  de baixo. O `useMutation` usa o callback do último render; se esse render parou antes da declaração,
+  a chamada lança um `ReferenceError`. O TypeScript e o ESLint não acusam, porque o uso fica dentro de
+  uma função.
+
+- **Modal usa o `<dialog>` nativo** (decidido em 04/11), controlado pelas props `open` e `onClose`, como
+  um input por `value` e `onChange`. O `showModal()` já traz o Esc, o foco preso dentro do modal e o fundo
+  escurecido, e o conteúdo desmonta ao fechar. Quando o projeto adotar componentes de UI, o `Modal` pode
+  ser substituído ou ampliado.
 
 ### State
 
