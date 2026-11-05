@@ -17,16 +17,6 @@ const routes = [
     path: "/projects/new",
     name: "Novo Projeto",
   },
-  {
-    key: "login",
-    path: "/login",
-    name: "Login",
-  },
-  {
-    key: "register",
-    path: "/register",
-    name: "Registre-se",
-  },
 ];
 
 export function AppLayout() {

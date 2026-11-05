@@ -1,4 +1,3 @@
-import { LoginPage, RegisterPage } from "@/modules/identity";
 import {
   ProjectDetailPage,
   ProjectFormPage,
@@ -17,10 +16,6 @@ export function AppRoutes() {
         <Route path="/projects/new" element={<ProjectFormPage />} />
         <Route path="/projects/:id" element={<ProjectDetailPage />} />
         <Route path="/projects/:id/edit" element={<ProjectFormPage />} />
-
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
