@@ -1,12 +1,16 @@
 export { httpClient } from "./api/httpClient";
 export { HttpError } from "./api/HttpError";
 export type { HttpErrorKind } from "./api/HttpError";
+export { HttpStatus } from "./api/HttpStatus";
 export { Card } from "./components/Card/Card";
 export { CardBody } from "./components/Card/CardBody";
 export { CardFooter } from "./components/Card/CardFooter";
 export { CardHeader } from "./components/Card/CardHeader";
 export { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
+export { Modal } from "./components/Modal";
 export { NotificationProvider } from "./context/NotificationContext/NotificationProvider";
 export { useNotification } from "./context/NotificationContext/useNotification";
 export { useDebounce } from "./hooks/useDebounce";
+export { describeError } from "./utils/describeError";
 export { formatDateTime } from "./utils/formatDateTime";
+export { isUuid } from "./utils/isUuid";

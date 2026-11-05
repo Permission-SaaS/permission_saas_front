@@ -1,4 +1,5 @@
 import { HttpError } from "./HttpError";
+import { HttpStatus } from "./HttpStatus";
 
 interface ErrorResponse {
   status: number;
@@ -80,7 +81,7 @@ const request = async <T>(
       throw new HttpError("http", message, response.status);
     }
 
-    if (response.status === 204) {
+    if (response.status === HttpStatus.NO_CONTENT) {
       return undefined as T;
     }
 

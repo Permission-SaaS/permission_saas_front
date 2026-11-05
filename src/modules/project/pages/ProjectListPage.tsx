@@ -1,4 +1,4 @@
-import { useDebounce, type HttpError } from "@/shared";
+import { describeError, useDebounce } from "@/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -12,14 +12,6 @@ const STATUS_TO_PARAM: Record<Status, boolean | undefined> = {
   all: undefined,
   active: true,
   inactive: false,
-};
-
-const describeError = (error: HttpError) => {
-  if (error.kind === "network" || error.kind === "timeout") {
-    return "Não foi possível falar com o servidor. Tente de novo em instantes.";
-  }
-
-  return `O servidor respondeu com o erro ${error.status}.`;
 };
 
 const handleSubmitForm = (event: React.SubmitEvent<HTMLFormElement>) => {
