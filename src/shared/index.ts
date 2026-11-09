@@ -13,6 +13,8 @@ export { Modal } from "./components/Modal";
 export { NotificationProvider } from "./context/NotificationContext/NotificationProvider";
 export { useNotification } from "./context/NotificationContext/useNotification";
 export { useDebounce } from "./hooks/useDebounce";
+export { useForm } from "./hooks/useForm";
+export type { Violation } from "./hooks/useForm";
 export { describeError } from "./utils/describeError";
 export { formatDateTime } from "./utils/formatDateTime";
 export { isUuid } from "./utils/isUuid";

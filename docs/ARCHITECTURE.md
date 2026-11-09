@@ -17,6 +17,7 @@ Um módulo do front para cada módulo do `permission-service`, como no back-end:
 src/
 ├── main.tsx                # ponto de entrada: monta o <App /> no #root
 ├── index.css               # @import "tailwindcss"
+├── vite-env.d.ts           # os tipos das variáveis do import.meta.env
 ├── app/                    # liga as peças; o único lugar que conhece todos os módulos
 │   ├── App.tsx             # ErrorBoundary, Providers e <BrowserRouter> em volta das rotas
 │   ├── providers.tsx       # Providers: junta os providers do app (avisos e React Query)
@@ -31,11 +32,13 @@ src/
 │       ├── api/
 │       │   ├── projectApi.ts   # as chamadas HTTP do módulo, pelo httpClient
 │       │   └── projectKeys.ts  # as chaves de cache do React Query
-│       ├── components/     # ProjectList (a mensagem de vazio ou a grade), ProjectCard (um projeto no Card), ProjectDetail (busca, mostra e exclui), ProjectNotFound e ProjectStatusBadge
+│       ├── components/     # ProjectList (a mensagem de vazio ou a grade), ProjectCard (um projeto no Card), ProjectDetail (busca, mostra e exclui), ProjectNotFound, ProjectStatusBadge, ProjectForm (os campos), ProjectCreate e ProjectEdit (a busca, a mutação e os avisos de cada ação)
 │       ├── pages/          # ProjectListPage, ProjectDetailPage, ProjectFormPage
-│       └── types.ts        # os tipos dos DTOs da API
+│       ├── utils/
+│       │   └── validateProject.ts  # as regras do formulário de projeto
+│       └── types.ts        # os tipos dos DTOs da API e os valores do formulário (ProjectValues)
 └── shared/                 # genérico, sem regra de negócio
-    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Button, LinkButton, Card e as partes dele, Modal, httpClient, HttpError, HttpStatus, NotificationProvider, useNotification, useDebounce, describeError, formatDateTime, isUuid)
+    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Button, LinkButton, Card e as partes dele, Modal, httpClient, HttpError, HttpStatus, NotificationProvider, useNotification, useDebounce, useForm e o tipo Violation, describeError, formatDateTime, isUuid)
     ├── api/
     │   ├── httpClient.ts   # get/post/put/delete: prefixo /api, JSON, timeout e cancelamento
     │   ├── HttpError.ts    # o erro de toda chamada, com o kind e o status
@@ -62,7 +65,8 @@ src/
     │       ├── Toast.tsx                   # um aviso, com o próprio timer: interno
     │       └── types.ts                    # os tipos que as peças dividem
     ├── hooks/
-    │   └── useDebounce.ts  # o valor atrasado: só acompanha o original depois de uma pausa
+    │   ├── useDebounce.ts  # o valor atrasado: só acompanha o original depois de uma pausa
+    │   └── useForm.ts      # os valores e os erros de um formulário, validado no envio
     └── utils/
         ├── describeError.ts    # o texto de um erro de leitura, escolhido pelo kind
         ├── formatDateTime.ts   # a data ISO da API em texto pt-BR, no fuso de quem usa
@@ -79,6 +83,7 @@ nascem com o primeiro arquivo de cada uma:
 | `modules/<módulo>/components/` | componentes usados só por aquele módulo                 |
 | `modules/<módulo>/api/`        | as chamadas HTTP do módulo                              |
 | `modules/<módulo>/hooks/`      | hooks do módulo                                         |
+| `modules/<módulo>/utils/`      | as funções do módulo, sem React, como a validação       |
 | `modules/<módulo>/types.ts`    | os tipos dos DTOs da API                                |
 | `modules/identity/`            | o login simulado e, em `store/`, o `authSlice` do Redux |
 | `app/store.ts`                 | a store do Redux                                        |
@@ -287,6 +292,27 @@ Decidido em 01/11, com o `httpClient`:
 - **Debounce só para digitação** (decidido em 03/11): o campo de texto passa pelo `useDebounce`; o select
   e o checkbox vão direto para o filtro, porque um clique é uma ação só e o atraso só deixaria a tela
   lenta.
+- **O erro de uma mutação vira uma mensagem fixa em português** (decidido em 09/11), escolhida pelo
+  `status` num `switch` no `onError`, como o 409 da edição de projeto, nunca o texto que a API devolve.
+  O `default` cobre o resto com uma mensagem genérica.
+
+### Formulários
+
+Decidido em 09/11, com o formulário de projeto:
+
+- **Um componente de formulário e um invólucro por ação.** O `ProjectForm` só cuida dos campos e recebe
+  por props o que muda: o título, os valores iniciais, o texto do botão, o `onSubmit` e o `cancelTo`. O
+  `ProjectCreate` e o `ProjectEdit` guardam a busca, a mutação e os avisos.
+- **Os valores do formulário são texto** (`<Entidade>Values`, como o `ProjectValues`), porque todo input
+  entrega texto. A conversão para o corpo da requisição fica numa função `to<X>Request` no invólucro:
+  `trim()`, campo opcional vazio vira `undefined` (o `JSON.stringify` o tira do corpo) e `Number()` nos
+  números.
+- **O formulário controlado usa o `useForm` do `shared`**, que guarda os valores e os erros. Ele valida
+  no envio, e digitar num campo apaga só o erro daquele campo, sem criar erro novo. O `name` de cada
+  input é igual à chave em `<Entidade>Values`.
+- **O formulário lê os valores iniciais só ao montar** (o `useState` ignora o valor inicial nos renders
+  seguintes). Por isso, depois de salvar, o `onSuccess` põe a resposta da API no cache com o
+  `setQueryData` antes de navegar: uma nova edição monta com o dado novo, e não com o antigo.
 
 ### TypeScript
 
@@ -314,7 +340,9 @@ Decidido em 01/11, com o `httpClient`:
 **O front valida por conforto, o back-end valida por obrigação.**
 
 - **O front valida o que der antes de chamar a API:** o formulário, antes de enviar, e o parâmetro da
-  URL, antes da requisição. Um `id` fora do formato UUID vira "projeto não encontrado" sem passar pela
+  URL, antes da requisição. A validação de um formulário é uma função `validate<Entidade>` em
+  `modules/<módulo>/utils/`, que devolve um `Violation`: um objeto com a mensagem de cada campo
+  inválido, vazio quando está tudo certo. As regras seguem as da API, como os limites de tamanho. Um `id` fora do formato UUID vira "projeto não encontrado" sem passar pela
   API. A resposta é imediata, e a requisição inútil nem sai.
 - **O back-end continua validando tudo**, inclusive o que o front já barra, porque qualquer pessoa
   chama a API direto, pelo curl ou pelo Postman.

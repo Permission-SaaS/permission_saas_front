@@ -14,6 +14,12 @@ export interface ProjectFilters {
   onlyActive?: boolean;
 }
 
+export interface ProjectValues {
+  name: string;
+  description: string;
+  maxRoles: string;
+}
+
 export interface CreateProjectRequest {
   clientId: string;
   name: string;

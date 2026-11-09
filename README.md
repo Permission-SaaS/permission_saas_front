@@ -3,9 +3,9 @@
 Front-end do **Permission SaaS**, em React com TypeScript. O Vite é a ferramenta de build e o
 Tailwind CSS cuida dos estilos. A decisão e a troca do Create React App pelo Vite estão no ADR-016, no
 [`docs/ARCHITECTURE.md`](https://github.com/Permission-SaaS/permission_saas/blob/main/docs/ARCHITECTURE.md)
-do guarda-chuva. Por enquanto, tem a navegação (o layout e as rotas, com páginas provisórias), uma tela
-de erro para falhas de render, os avisos na tela (toasts) e o cliente HTTP que conversa com a API,
-prontos para os próximos passos usarem.
+do guarda-chuva. Por enquanto, tem o CRUD de projetos (a lista com busca, o detalhe com exclusão e o formulário de
+criação e edição), a navegação, uma tela de erro para falhas de render, os avisos na tela (toasts) e
+o cliente HTTP que conversa com a API.
 
 Vai consumir a API da aplicação principal (`permission-service`, porta 8080), documentada no
 [`API.md` do `permission_saas_api`](https://github.com/Permission-SaaS/permission_saas_api/blob/main/docs/API.md).
@@ -32,6 +32,10 @@ npm run format        # formata o projeto com o Prettier
 npm run format:check  # só confere a formatação, sem alterar nada
 npm run check         # build, lint e format:check, nessa ordem
 ```
+
+A criação de projetos precisa do id de um cliente cadastrado na API, enquanto o login não existe.
+Copie o `.env.example` para `.env.local` e preencha o `VITE_DEV_CLIENT_ID` (o `GET /clients` da API
+lista os clientes). O `.env.local` não vai para o git.
 
 O `npm run dev` não confere tipos: um erro de tipo só aparece no editor e no `npm run build`.
 
