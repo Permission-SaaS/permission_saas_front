@@ -1,4 +1,6 @@
-import { ErrorBoundary } from "@/shared";
+import { loggedOut, selectCurrentUser } from "@/modules/identity";
+import { Button, ErrorBoundary } from "@/shared";
+import { useDispatch, useSelector } from "react-redux";
 import { NavLink, Outlet, useLocation } from "react-router";
 
 const routes = [
@@ -21,22 +23,37 @@ const routes = [
 
 export function AppLayout() {
   const location = useLocation();
+  const currentUser = useSelector(selectCurrentUser);
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(loggedOut());
+  };
 
   return (
     <>
-      <header>
-        <h1>Bem vindo(a) ao App</h1>
-        <nav>
-          {routes.map((route) => (
-            <NavLink
-              key={route.key}
-              to={route.path}
-              className={({ isActive }) => (isActive ? "font-bold" : "")}
-            >
-              {route.name}
-            </NavLink>
-          ))}
-        </nav>
+      <header className="flex items-center justify-between border-b border-gray-200 px-6 py-3">
+        <div className="flex items-center gap-6">
+          <h1 className="text-lg font-semibold text-gray-900">
+            Permission SaaS
+          </h1>
+          <nav className="flex gap-4 text-sm">
+            {routes.map((route) => (
+              <NavLink
+                key={route.key}
+                to={route.path}
+                className={({ isActive }) => (isActive ? "font-bold" : "")}
+              >
+                {route.name}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-3 text-sm text-gray-700">
+          <span>Olá, {currentUser?.name}</span>
+          <Button onClick={handleLogout}>Sair</Button>
+        </div>
       </header>
 
       <main>

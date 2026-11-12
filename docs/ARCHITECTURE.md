@@ -20,13 +20,23 @@ src/
 ├── vite-env.d.ts           # os tipos das variáveis do import.meta.env
 ├── app/                    # liga as peças; o único lugar que conhece todos os módulos
 │   ├── App.tsx             # ErrorBoundary, Providers e <BrowserRouter> em volta das rotas
-│   ├── providers.tsx       # Providers: junta os providers do app (avisos e React Query)
+│   ├── providers.tsx       # Providers: junta os providers do app (Redux, avisos e React Query)
 │   ├── queryClient.ts      # o QueryClient, o cache do React Query, criado uma vez só
-│   ├── router.tsx          # AppRoutes: a árvore de rotas
+│   ├── store.ts            # a store do Redux, com a sessão lida e gravada no localStorage
+│   ├── router.tsx          # AppRoutes: a árvore de rotas, com a rota privada em volta do layout
 │   ├── NotFoundPage.tsx    # o 404
 │   └── layout/
-│       └── AppLayout.tsx   # cabeçalho, menu e <Outlet />
+│       └── AppLayout.tsx   # cabeçalho (menu, nome de quem entrou e Sair) e <Outlet />
 ├── modules/
+│   ├── identity/           # login simulado e sessão   ↔ módulo identity
+│   │   ├── index.ts        # PrivateRoute, LoginPage, authSlice, loggedOut, selectCurrentUser
+│   │   ├── components/     # LoginForm (não controlado) e PrivateRoute (o porteiro das telas do app)
+│   │   ├── pages/          # LoginPage: o formulário, ou o redirecionamento de quem já entrou
+│   │   ├── store/
+│   │   │   └── authSlice.ts    # a sessão: o user ou null, os eventos loggedIn e loggedOut, os selectors
+│   │   ├── utils/
+│   │   │   └── validateLogin.ts    # o formato do e-mail e da senha
+│   │   └── types.ts        # User e os valores do formulário (LoginValues)
 │   └── project/            # CRUD de projetos   ↔ módulo project
 │       ├── index.ts
 │       ├── api/
@@ -38,7 +48,7 @@ src/
 │       │   └── validateProject.ts  # as regras do formulário de projeto
 │       └── types.ts        # os tipos dos DTOs da API e os valores do formulário (ProjectValues)
 └── shared/                 # genérico, sem regra de negócio
-    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Button, LinkButton, Card e as partes dele, Modal, httpClient, HttpError, HttpStatus, NotificationProvider, useNotification, useDebounce, useForm e o tipo Violation, describeError, formatDateTime, isUuid)
+    ├── index.ts            # barrel: só o que é público (ErrorBoundary, Button, LinkButton, Card e as partes dele, Modal, as classes dos campos de formulário, httpClient, HttpError, HttpStatus, NotificationProvider, useNotification, useDebounce, useForm e o tipo Violation, describeError, formatDateTime, isUuid)
     ├── api/
     │   ├── httpClient.ts   # get/post/put/delete: prefixo /api, JSON, timeout e cancelamento
     │   ├── HttpError.ts    # o erro de toda chamada, com o kind e o status
@@ -56,7 +66,8 @@ src/
     │   ├── ErrorBoundary/  # componente com arquivo satélite vira pasta
     │   │   ├── ErrorBoundary.tsx
     │   │   └── ErrorBoundaryFallback.tsx   # interno: fora do barrel
-    │   └── Modal.tsx       # a caixa sobre a tela, no <dialog> nativo: o conteúdo vem pelo children
+    │   ├── Modal.tsx       # a caixa sobre a tela, no <dialog> nativo: o conteúdo vem pelo children
+    │   └── formClasses.ts  # as classes do label, do campo (com e sem erro) e da mensagem de erro
     ├── context/
     │   └── NotificationContext/            # um contexto e as suas peças (ver Context)
     │       ├── NotificationContext.ts      # createContext: interno, só o hook o lê
@@ -76,17 +87,16 @@ src/
 **Pasta só existe quando tem arquivo**, até porque o git não guarda pasta vazia. As que o plano prevê
 nascem com o primeiro arquivo de cada uma:
 
-| Pasta                          | O que guarda                                            |
-| ------------------------------ | ------------------------------------------------------- |
-| `shared/hooks/`                | os hooks genéricos                                      |
-| `shared/utils/`                | as funções genéricas, sem React                         |
-| `modules/<módulo>/components/` | componentes usados só por aquele módulo                 |
-| `modules/<módulo>/api/`        | as chamadas HTTP do módulo                              |
-| `modules/<módulo>/hooks/`      | hooks do módulo                                         |
-| `modules/<módulo>/utils/`      | as funções do módulo, sem React, como a validação       |
-| `modules/<módulo>/types.ts`    | os tipos dos DTOs da API                                |
-| `modules/identity/`            | o login simulado e, em `store/`, o `authSlice` do Redux |
-| `app/store.ts`                 | a store do Redux                                        |
+| Pasta                          | O que guarda                                       |
+| ------------------------------ | -------------------------------------------------- |
+| `shared/hooks/`                | os hooks genéricos                                 |
+| `shared/utils/`                | as funções genéricas, sem React                    |
+| `modules/<módulo>/components/` | componentes usados só por aquele módulo            |
+| `modules/<módulo>/api/`        | as chamadas HTTP do módulo                         |
+| `modules/<módulo>/hooks/`      | hooks do módulo                                    |
+| `modules/<módulo>/utils/`      | as funções do módulo, sem React, como a validação  |
+| `modules/<módulo>/store/`      | os slices do Redux do módulo, um arquivo por slice |
+| `modules/<módulo>/types.ts`    | os tipos dos DTOs da API                           |
 
 ---
 
@@ -166,6 +176,13 @@ React Router 8 no **modo declarativo**: `<BrowserRouter>`, `<Routes>` e `<Route>
 - **No menu, `NavLink`**, com `end` quando o link deve ficar ativo só na URL exata.
 - **Parâmetro da URL é sempre `string | undefined`** e pode vir em qualquer formato, porque qualquer um
   digita a URL. Valide antes de usar (ver [Validação](#validação)).
+- **Rota privada é uma rota de layout** (decidido em 12/11): a `PrivateRoute`, do `identity`, fica em
+  volta da rota do `AppLayout` e devolve o `<Outlet />` ou um `<Navigate>` para `/login`, com a página
+  pedida no `state`. O `/login` fica fora dela e fora do layout. Ela só organiza a navegação: sem
+  autenticação na API, não protege dado nenhum.
+- **O `location.state` é tipado como `unknown`** e conferido antes de usar, como o `typeof ... ===
+"string"` da página pedida. O React Router o tipa como `any`, e com `any` o TypeScript aceitaria
+  qualquer uso.
 
 ---
 
@@ -267,6 +284,32 @@ Decidido em 22/10, com o `NotificationContext`:
   por função no setter, os comandos não leem o state, e as dependências ficam vazias. Um valor novo a
   cada render faria todo componente que usa o hook renderizar de novo.
 
+### Redux
+
+Decidido em 12/11, com a sessão. O Redux Toolkit guarda o estado global do próprio front que muda por
+eventos com nome (a sessão); os dados da API ficam no React Query, e o valor entregue à árvore sem
+regras de mudança, na Context.
+
+- **Os slices de um módulo ficam em `modules/<módulo>/store/`, um arquivo por slice** (`<nome>Slice.ts`,
+  com a variável `<nome>Slice`). O `name` é curto, diz que dado o slice guarda e é único no app
+  inteiro, porque vira a chave na store e o prefixo das actions (`auth/loggedIn`). A store liga cada
+  slice pela chave `slice.reducerPath`, nunca por um texto escrito à mão, para a chave não divergir do
+  `name`. O `app` importa o slice pelo `index.ts` do módulo.
+- **Reducer tem nome de evento no passado** (`loggedIn`, `loggedOut`): descreve o que aconteceu, nunca
+  o campo que muda (`setUser`). O state do slice é uma interface `<Nome>State` com o `initialState`.
+- **Selectors no campo `selectors` do slice**, com o nome `select<Coisa>` e, nos booleanos,
+  `selectIs<Coisa>`. Quem lê usa o `useSelector` com o selector do slice; quem muda usa o `dispatch`
+  com a action gerada pelo `createSlice`. Os componentes nunca leem o formato da store direto. Sem
+  `RootState` nem `AppDispatch` enquanto nada precisar deles.
+- **O reducer só calcula o state novo.** Gravar no `localStorage`, navegar e chamar a API ficam fora
+  dele; a persistência da sessão está no `subscribe` do `app/store.ts`, que só grava quando a
+  referência da sessão muda.
+- **A tela reage ao estado, em vez de mandar navegar depois do `dispatch`.** Quem decide a rota depois
+  de um evento é um componente que lê o estado: o `LoginPage` leva para a página pedida quando o
+  `selectIsLoggedIn` vira `true`, e o Sair só entrega o `loggedOut`, porque a `PrivateRoute` manda para
+  o login sozinha. Um lugar só decide, e o caminho é o mesmo para quem acabou de entrar e para quem
+  abre `/login` já logado.
+
 ### Chamadas à API
 
 Decidido em 01/11, com o `httpClient`:
@@ -313,6 +356,14 @@ Decidido em 09/11, com o formulário de projeto:
 - **O formulário lê os valores iniciais só ao montar** (o `useState` ignora o valor inicial nos renders
   seguintes). Por isso, depois de salvar, o `onSuccess` põe a resposta da API no cache com o
   `setQueryData` antes de navegar: uma nova edição monta com o dado novo, e não com o antigo.
+- **Formulário não controlado** (decidido em 12/11, com o login), quando o valor só importa no envio: os
+  campos não têm `value` nem state, e o `handleSubmit` lê os valores pelo `FormData`, pelo `name` de
+  cada campo, montando o `<Coisa>Values` antes de validar. Só os erros ficam em state. O valor inicial,
+  se houver, vai no `defaultValue`.
+- **O `<form>` tem `noValidate`** quando a validação é nossa, para os balões do navegador (de
+  `type="email"`, `min` ou `required`) não aparecerem antes das mensagens do formulário.
+- **As classes dos campos vêm do `shared`** (`FIELD_LABEL_CLASSES`, `fieldClasses` e
+  `FIELD_ERROR_CLASSES`), para todo formulário ter o mesmo visual.
 
 ### TypeScript
 

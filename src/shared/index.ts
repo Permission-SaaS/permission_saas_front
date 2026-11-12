@@ -9,6 +9,11 @@ export { CardBody } from "./components/Card/CardBody";
 export { CardFooter } from "./components/Card/CardFooter";
 export { CardHeader } from "./components/Card/CardHeader";
 export { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
+export {
+  FIELD_ERROR_CLASSES,
+  FIELD_LABEL_CLASSES,
+  fieldClasses,
+} from "./components/formClasses";
 export { Modal } from "./components/Modal";
 export { NotificationProvider } from "./context/NotificationContext/NotificationProvider";
 export { useNotification } from "./context/NotificationContext/useNotification";

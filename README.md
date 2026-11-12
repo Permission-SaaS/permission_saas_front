@@ -3,9 +3,10 @@
 Front-end do **Permission SaaS**, em React com TypeScript. O Vite é a ferramenta de build e o
 Tailwind CSS cuida dos estilos. A decisão e a troca do Create React App pelo Vite estão no ADR-016, no
 [`docs/ARCHITECTURE.md`](https://github.com/Permission-SaaS/permission_saas/blob/main/docs/ARCHITECTURE.md)
-do guarda-chuva. Por enquanto, tem o CRUD de projetos (a lista com busca, o detalhe com exclusão e o formulário de
-criação e edição), a navegação, uma tela de erro para falhas de render, os avisos na tela (toasts) e
-o cliente HTTP que conversa com a API.
+do guarda-chuva. Por enquanto, tem o login simulado, com a sessão no Redux e as telas protegidas por uma rota
+privada, o CRUD de projetos (a lista com busca, o detalhe com exclusão e o formulário de criação e
+edição), a navegação, uma tela de erro para falhas de render, os avisos na tela (toasts) e o cliente
+HTTP que conversa com a API.
 
 Vai consumir a API da aplicação principal (`permission-service`, porta 8080), documentada no
 [`API.md` do `permission_saas_api`](https://github.com/Permission-SaaS/permission_saas_api/blob/main/docs/API.md).
@@ -33,7 +34,11 @@ npm run format:check  # só confere a formatação, sem alterar nada
 npm run check         # build, lint e format:check, nessa ordem
 ```
 
-A criação de projetos precisa do id de um cliente cadastrado na API, enquanto o login não existe.
+**Login de demonstração:** e-mail `demo@example.com` e senha `demo@123`. O login é simulado no front:
+a API ainda não tem autenticação, então a rota privada só organiza a navegação e não protege os dados.
+A sessão fica no `localStorage` do navegador e sobrevive ao F5.
+
+A criação de projetos precisa do id de um cliente cadastrado na API, porque o login simulado não tem um.
 Copie o `.env.example` para `.env.local` e preencha o `VITE_DEV_CLIENT_ID` (o `GET /clients` da API
 lista os clientes). O `.env.local` não vai para o git.
 

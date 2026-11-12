@@ -1,3 +1,4 @@
+import { LoginPage, PrivateRoute } from "@/modules/identity";
 import {
   ProjectDetailPage,
   ProjectFormPage,
@@ -10,13 +11,16 @@ import { NotFoundPage } from "./NotFoundPage";
 export function AppRoutes() {
   return (
     <Routes>
-      <Route element={<AppLayout />}>
-        <Route index element={<Navigate to="/projects" replace />} />
-        <Route path="/projects" element={<ProjectListPage />} />
-        <Route path="/projects/new" element={<ProjectFormPage />} />
-        <Route path="/projects/:id" element={<ProjectDetailPage />} />
-        <Route path="/projects/:id/edit" element={<ProjectFormPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route element={<PrivateRoute />}>
+        <Route element={<AppLayout />}>
+          <Route index element={<Navigate to="/projects" replace />} />
+          <Route path="/projects" element={<ProjectListPage />} />
+          <Route path="/projects/new" element={<ProjectFormPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/projects/:id/edit" element={<ProjectFormPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Route>
     </Routes>
   );

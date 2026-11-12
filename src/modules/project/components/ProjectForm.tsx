@@ -4,23 +4,14 @@ import {
   CardBody,
   CardFooter,
   CardHeader,
+  FIELD_ERROR_CLASSES,
+  FIELD_LABEL_CLASSES,
+  fieldClasses,
   LinkButton,
   useForm,
 } from "@/shared";
 import type { ProjectValues } from "../types";
 import { validateProject } from "../utils/validateProject";
-
-const LABEL_CLASSES = "text-sm font-medium text-gray-700";
-
-const ERROR_CLASSES = "text-sm text-red-700";
-
-const fieldClasses = (hasError: boolean) => {
-  const stateClasses = hasError
-    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
-    : "border-gray-300 focus:border-blue-500 focus:ring-blue-500";
-
-  return `w-full rounded-md border px-3 py-1.5 text-sm text-gray-900 focus:ring-1 focus:outline-none ${stateClasses}`;
-};
 
 interface Props {
   title: string;
@@ -54,7 +45,7 @@ export function ProjectForm({
         <CardBody>
           <div className="space-y-4">
             <div className="flex flex-col gap-1">
-              <label className={LABEL_CLASSES} htmlFor="projectName">
+              <label className={FIELD_LABEL_CLASSES} htmlFor="projectName">
                 Nome do Projeto:
               </label>
               <input
@@ -67,12 +58,15 @@ export function ProjectForm({
                 aria-invalid={!!errors.name}
               />
               {errors.name && (
-                <span className={ERROR_CLASSES}>{errors.name}</span>
+                <span className={FIELD_ERROR_CLASSES}>{errors.name}</span>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className={LABEL_CLASSES} htmlFor="projectDescription">
+              <label
+                className={FIELD_LABEL_CLASSES}
+                htmlFor="projectDescription"
+              >
                 Descrição:
               </label>
               <textarea
@@ -85,12 +79,14 @@ export function ProjectForm({
                 aria-invalid={!!errors.description}
               />
               {errors.description && (
-                <span className={ERROR_CLASSES}>{errors.description}</span>
+                <span className={FIELD_ERROR_CLASSES}>
+                  {errors.description}
+                </span>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className={LABEL_CLASSES} htmlFor="projectMaxRoles">
+              <label className={FIELD_LABEL_CLASSES} htmlFor="projectMaxRoles">
                 Máximo de cargos:
               </label>
               <input
@@ -103,7 +99,7 @@ export function ProjectForm({
                 aria-invalid={!!errors.maxRoles}
               />
               {errors.maxRoles && (
-                <span className={ERROR_CLASSES}>{errors.maxRoles}</span>
+                <span className={FIELD_ERROR_CLASSES}>{errors.maxRoles}</span>
               )}
             </div>
           </div>
