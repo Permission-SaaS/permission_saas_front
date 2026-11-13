@@ -1,14 +1,20 @@
 # permission_saas_front
 
 Front-end do **Permission SaaS**, em React com TypeScript. O Vite é a ferramenta de build e o
-Tailwind CSS cuida dos estilos. A decisão e a troca do Create React App pelo Vite estão no ADR-016, no
+Tailwind CSS cuida dos estilos, com os ícones do Phosphor Icons. A decisão e a troca do Create React App pelo Vite estão no ADR-016, no
 [`docs/ARCHITECTURE.md`](https://github.com/Permission-SaaS/permission_saas/blob/main/docs/ARCHITECTURE.md)
-do guarda-chuva. Por enquanto, tem o login simulado, com a sessão no Redux e as telas protegidas por uma rota
+do guarda-chuva. Tem o login simulado, com a sessão no Redux e as telas protegidas por uma rota
 privada, o CRUD de projetos (a lista com busca, o detalhe com exclusão e o formulário de criação e
 edição), a navegação, uma tela de erro para falhas de render, os avisos na tela (toasts) e o cliente
 HTTP que conversa com a API.
 
-Vai consumir a API da aplicação principal (`permission-service`, porta 8080), documentada no
+Foi construído na disciplina "Desenvolvimento de aplicações interativas com React" da
+pós-graduação. O relatório da entrega, com os prints e os testes no Chrome, no Firefox e no Edge,
+está no
+[`ENTREGA.md`](https://github.com/Permission-SaaS/permission_saas/blob/main/docs/desenvolvimento_de_aplicacoes_interativas_com_react/ENTREGA.md)
+do guarda-chuva.
+
+Consome a API da aplicação principal (`permission-service`, porta 8080), documentada no
 [`API.md` do `permission_saas_api`](https://github.com/Permission-SaaS/permission_saas_api/blob/main/docs/API.md).
 Em desenvolvimento, o front chama `/api/...`, e o Vite repassa a chamada para `http://localhost:8080`
 sem o prefixo (`server.proxy` no `vite.config.ts`). Por isso, as telas que usam dados precisam da API
