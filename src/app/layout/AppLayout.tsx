@@ -1,5 +1,6 @@
 import { loggedOut, selectCurrentUser } from "@/modules/identity";
 import { Button, ErrorBoundary } from "@/shared";
+import { SignOut } from "@phosphor-icons/react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, Outlet, useLocation } from "react-router";
 
@@ -52,7 +53,10 @@ export function AppLayout() {
 
         <div className="flex items-center gap-3 text-sm text-gray-700">
           <span>Olá, {currentUser?.name}</span>
-          <Button onClick={handleLogout}>Sair</Button>
+          <Button onClick={handleLogout}>
+            <SignOut size={16} aria-hidden="true" />
+            Sair
+          </Button>
         </div>
       </header>
 

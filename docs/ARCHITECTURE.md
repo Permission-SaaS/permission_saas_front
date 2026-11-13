@@ -382,6 +382,10 @@ Decidido em 09/11, com o formulário de projeto:
 - **Classes do Tailwind direto no JSX**, sem arquivo de CSS por componente. O `index.css` só importa o
   Tailwind.
 - **A ordem das classes fica com o Prettier**, pelo plugin do Tailwind.
+- **Ícones sempre do Phosphor Icons** (`@phosphor-icons/react`, decidido em 12/11), importados pelo nome
+  do componente, nunca SVG escrito à mão. Nos botões, `size={16}` antes do texto (o `Button` já alinha os
+  dois); o `weight="bold"` só nos botões principais. Todo ícone que acompanha um texto leva
+  `aria-hidden="true"`, porque é decoração e o leitor de tela já lê o texto.
 - **Funcional antes de bonito:** o Tailwind organiza a tela, sem investimento em design por enquanto.
 
 ---

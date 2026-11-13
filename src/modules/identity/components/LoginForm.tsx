@@ -9,6 +9,7 @@ import {
   fieldClasses,
   type Violation,
 } from "@/shared";
+import { SignIn } from "@phosphor-icons/react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "../store/authSlice";
@@ -120,6 +121,7 @@ export function LoginForm() {
 
         <CardFooter>
           <Button variant="primary" type="submit">
+            <SignIn size={16} weight="bold" aria-hidden="true" />
             Entrar
           </Button>
         </CardFooter>

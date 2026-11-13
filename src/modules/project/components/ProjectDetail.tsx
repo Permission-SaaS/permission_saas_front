@@ -11,6 +11,7 @@ import {
   Modal,
   useNotification,
 } from "@/shared";
+import { PencilSimple, Trash } from "@phosphor-icons/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -165,6 +166,7 @@ export function ProjectDetail({ id }: Props) {
             disabled={!isProjectNameConfirmed || isDeleting}
             onClick={handleDeleteProject}
           >
+            <Trash size={16} aria-hidden="true" />
             {isDeleting ? "Deletando..." : "Excluir"}
           </Button>
         </CardFooter>
@@ -199,12 +201,16 @@ export function ProjectDetail({ id }: Props) {
           </div>
         </CardBody>
         <CardFooter>
-          <LinkButton to={`/projects/${id}/edit`}>Editar</LinkButton>
+          <LinkButton to={`/projects/${id}/edit`}>
+            <PencilSimple size={16} aria-hidden="true" />
+            Editar
+          </LinkButton>
           <Button
             variant="danger"
             disabled={isDeleting}
             onClick={handleDeleteModalOpen}
           >
+            <Trash size={16} aria-hidden="true" />
             Excluir
           </Button>
         </CardFooter>

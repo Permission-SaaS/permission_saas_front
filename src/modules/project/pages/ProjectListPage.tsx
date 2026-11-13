@@ -1,4 +1,5 @@
 import { describeError, LinkButton, useDebounce } from "@/shared";
+import { Plus } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { listProjects } from "../api/projectApi";
@@ -53,6 +54,7 @@ export function ProjectListPage() {
         </div>
         <div>
           <LinkButton variant="primary" to="/projects/new">
+            <Plus size={16} weight="bold" aria-hidden="true" />
             Novo Projeto
           </LinkButton>
         </div>

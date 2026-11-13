@@ -1,4 +1,5 @@
-const BASE_CLASSES = "rounded-md border px-3 py-1.5 text-sm font-medium";
+const BASE_CLASSES =
+  "inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium";
 
 const VARIANT_CLASSES = {
   default:
