@@ -16,6 +16,7 @@ export const useForm = <T>(
     const { name, value } = event.target;
 
     setValues((prevValues) => ({ ...prevValues, [name]: value }));
+    // Digitar apaga só o erro deste campo; a validação completa roda no envio.
     setErrors((prevErrors) => {
       const copyErrors = { ...prevErrors };
       delete copyErrors[name as keyof T];

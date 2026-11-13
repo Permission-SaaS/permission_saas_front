@@ -10,6 +10,8 @@ interface State {
   hasError: boolean;
 }
 
+// Componente de classe porque, no React 19, error boundary ainda só existe como classe:
+// o getDerivedStateFromError e o componentDidCatch não têm equivalente em hook.
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = { hasError: false };
 

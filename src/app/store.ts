@@ -28,6 +28,8 @@ export const store = configureStore({
   },
 });
 
+// Grava a sessão fora do reducer, que só calcula o state novo. A comparação por referência
+// evita gravar quando uma action não mudou a sessão.
 let previousSession = store.getState()[authSlice.reducerPath];
 
 store.subscribe(() => {

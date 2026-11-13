@@ -52,6 +52,7 @@ const request = async <T>(
     signals.push(options.signal);
   }
 
+  // Junta o sinal do timeout com o de quem chamou: qualquer um dos dois cancela o fetch.
   const abortSignals = AbortSignal.any(signals);
 
   const requestInit: RequestInit = {
@@ -71,6 +72,7 @@ const request = async <T>(
   });
 
   try {
+    // Vence o que terminar primeiro: a resposta ou o timeout, que também aborta o fetch.
     const response = await Promise.race<Response>([
       fetch(requestPath, requestInit),
       requestTimeout,
