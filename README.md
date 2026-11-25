@@ -50,6 +50,21 @@ lista os clientes). O `.env.local` não vai para o git.
 
 O `npm run dev` não confere tipos: um erro de tipo só aparece no editor e no `npm run build`.
 
+### Em container
+
+O front também sobe no Docker Compose do guarda-chuva, junto com a API, em `http://localhost:3000`:
+
+```bash
+docker compose up -d --build    # na raiz do permission_saas
+```
+
+O `Dockerfile` tem dois estágios: o Node instala e roda o `npm run build`, e o nginx serve só a `dist/`.
+O `nginx.conf` devolve o `index.html` para as rotas do React Router e repassa o `/api` para o
+`permission-service`, como o proxy do Vite. O `VITE_DEV_CLIENT_ID` vem do `.env` do guarda-chuva e entra
+no build: depois de mudá-lo, rode `docker compose up -d --build front`. Os detalhes estão no
+[`docs/RUNNING.md`](https://github.com/Permission-SaaS/permission_saas/blob/main/docs/RUNNING.md) do
+guarda-chuva.
+
 A formatação segue o `.prettierrc`: os padrões do Prettier, mais um plugin que ordena os imports e
 remove os não usados e o plugin do Tailwind, que ordena as classes. No VS Code, o projeto recomenda as extensões do Prettier, do ESLint e do Tailwind
 (`.vscode/extensions.json`).
